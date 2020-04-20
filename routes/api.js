@@ -6,17 +6,17 @@
  *
  */
 
-"use strict";
+'use strict';
 
-const expect = require("chai").expect;
-const mongoose = require("mongoose");
-require("../models/books.js");
+const expect = require('chai').expect;
+const mongoose = require('mongoose');
+require('../models/books.js');
 
-let Books = mongoose.model("Books");
+let Books = mongoose.model('Books');
 
 module.exports = function (app) {
   app
-    .route("/api/books")
+    .route('/api/books')
     .get(function (req, res) {
       Books.find({}, (err, data) => {
         if (err) {
@@ -48,7 +48,7 @@ module.exports = function (app) {
       });
 
       if (!req.body.title) {
-        res.send("missing title");
+        res.send('missing title');
         return;
       }
 
@@ -70,21 +70,19 @@ module.exports = function (app) {
           return;
         }
         if (!data.ok) {
-          res.send("complete delete unsuccessful");
+          res.send('complete delete unsuccessful');
           return;
         }
 
-        res.send("complete delete successful");
+        res.send('complete delete successful');
       });
     });
 
   app
-    .route("/api/books/:id")
+    .route('/api/books/:id')
     .get(function (req, res) {
-      var bookid = req.params.id;
-
       if (!req.params.id) {
-        res.send("missing _id");
+        res.send('missing id');
         return;
       }
 
@@ -94,7 +92,7 @@ module.exports = function (app) {
           return;
         }
         if (!data) {
-          res.send("no such book");
+          res.send('no book exists');
           return;
         }
 
@@ -103,22 +101,20 @@ module.exports = function (app) {
     })
 
     .post(function (req, res) {
-      Books.findOneAndUpdate(
-        { _id: req.params.id },
-        { $push: { comments: req.body.comment } },
-        (err, data) => {
-          if (err) {
-            res.send(err);
-            return;
-          }
-          if (!data) {
-            res.send("no such book");
-            return;
-          }
-
-          res.json(data);
+      Books.findOneAndUpdate({ _id: req.params.id }, { $push: { comments: req.body.comment } }, (err, data) => {
+        if (err) {
+          res.send(err);
+          return;
         }
-      );
+        if (!data) {
+          res.send('no such book');
+          return;
+        }
+
+        data.comments.push(req.body.comment);
+
+        res.json(data);
+      });
     })
 
     .delete(function (req, res) {
@@ -127,12 +123,8 @@ module.exports = function (app) {
           res.send(err);
           return;
         }
-        if (!data) {
-          res.send("no such book");
-          return;
-        }
 
-        res.send("delete successful");
+        res.send('delete successful');
       });
     });
 };
